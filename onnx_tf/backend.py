@@ -23,6 +23,7 @@ import numpy as np
 
 from onnx_tf.backend_rep import TensorflowRep
 from onnx_tf.common import data_type
+from onnx_tf.common import sys_config
 from onnx_tf.common import get_unique_suffix
 from onnx_tf.common import supports_device as common_supports_device
 from onnx_tf.common.handler_helper import get_all_backend_handlers
@@ -139,6 +140,12 @@ class TensorflowBackend(Backend):
         value_info_name = value_info.name.replace(
             ":", "_tf_") + "_" + get_unique_suffix(
             ) if ":" in value_info.name else value_info.name
+
+        if sys_config.device == 'MCU':
+            # input format should be channel last, so swap the channel dim
+            c = shape[1]
+            del shape[1]
+            shape.append(c)
 
         tf_spec = tf.TensorSpec(
             shape, data_type.onnx2tf(value_info.type.tensor_type.elem_type),

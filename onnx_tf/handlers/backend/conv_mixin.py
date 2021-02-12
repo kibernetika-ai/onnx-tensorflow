@@ -108,7 +108,7 @@ class ConvMixin(BroadcastMixin):
       depthwise_filter_shape = weight_shape[0:2] + [-1, weight_shape[3] // group]
       weights = tf.reshape(weights, depthwise_filter_shape)
 
-      if not sys_config.device == 'CUDA':
+      if sys_config.device == 'CPU':
         # transpose input to NHWC layout
         x = tf.transpose(x,
                          perm=get_perm_from_formats(storage_format,
@@ -117,15 +117,14 @@ class ConvMixin(BroadcastMixin):
       xs = [x]
     else:
       weight_groups = tf.split(weights, num_or_size_splits=group, axis=-1)
-      if sys_config.device == 'CUDA':
+      if sys_config.device in ['CUDA', 'MCU']:
         if group == 1:
           xs = [x]
         else:
           xs = tf.split(x, num_or_size_splits=group, axis=1)
       else:
-        x = tf.transpose(x,
-                         perm=get_perm_from_formats(storage_format,
-                                                    compute_format))
+        x = tf.transpose(x, perm=get_perm_from_formats(storage_format,
+                                                       compute_format))
         if group == 1:
           xs = [x]
         else:
@@ -284,7 +283,7 @@ class ConvMixin(BroadcastMixin):
         ]
 
     if len(node.inputs) == 2:
-      if sys_config.device == 'CUDA':
+      if sys_config.device in ['CUDA', 'MCU']:
         output = tf.concat(convolved, axis=1)
       else:
         output = tf.concat(convolved, axis=-1)
@@ -295,7 +294,7 @@ class ConvMixin(BroadcastMixin):
       bias = input_dict[node.inputs[2]]
       bias = cls.explicit_broadcast([x, bias], compute_c_idx)
 
-      if sys_config.device == 'CUDA':
+      if sys_config.device in ['CUDA', 'MCU']:
         output = tf.concat(convolved, axis=1)
         output = tf.add(output, bias)
       else:

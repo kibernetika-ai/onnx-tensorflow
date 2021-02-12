@@ -159,7 +159,11 @@ def get_data_format(x_rank):
     sp_dim_lst.append(sp_dim_names[-i - 1])
 
   sp_dim_string = "".join(reversed(sp_dim_lst))
-  storage_format = "NC" + sp_dim_string
+
+  if sys_config.device == "MCU":
+    storage_format = "N" + sp_dim_string + "C"
+  else:
+    storage_format = "NC" + sp_dim_string
 
   if sys_config.device == "CUDA":
     compute_format = "NC" + sp_dim_string
