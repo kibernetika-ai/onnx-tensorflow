@@ -56,11 +56,18 @@ class Clip(BackendHandler):
     # dtype for x, therefore need to upcast it to tf.int32 or tf.int64
     need_cast = x_dtype in cls.cast_map
     x = tf.cast(x, cls.cast_map[x_dtype]) if need_cast else x
-    clip_value_min = tf.cast(
-        clip_value_min, cls.cast_map[x_dtype]) if need_cast else clip_value_min
-    clip_value_max = tf.cast(
-        clip_value_max, cls.cast_map[x_dtype]) if need_cast else clip_value_max
-    y = tf.clip_by_value(x, clip_value_min, clip_value_max)
+
+    if clip_value_min == 0 and clip_value_max == 6:
+        # special case for relu6
+        y = tf.nn.relu6(x)
+    else:
+        # general case
+        clip_value_min = tf.cast(
+            clip_value_min, cls.cast_map[x_dtype]) if need_cast else clip_value_min
+        clip_value_max = tf.cast(
+            clip_value_max, cls.cast_map[x_dtype]) if need_cast else clip_value_max
+        y = tf.clip_by_value(x, clip_value_min, clip_value_max)
+
     y = tf.cast(y, x_dtype) if need_cast else y
 
     return [y]
