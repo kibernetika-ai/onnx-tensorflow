@@ -12,6 +12,8 @@ class Concat(BackendHandler):
   @classmethod
   def _common(cls, node, **kwargs):
     inputs = [kwargs["tensor_dict"][inp] for inp in node.inputs]
+    print("Set concat")
+    node.attrs["axis"] = 3
     return [cls.make_tensor_from_onnx_node(node, inputs=[inputs])]
 
   @classmethod

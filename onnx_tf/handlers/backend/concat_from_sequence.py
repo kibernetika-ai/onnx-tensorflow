@@ -12,6 +12,7 @@ class ConcatFromSequence(BackendHandler):
 
   @classmethod
   def version_11(cls, node, **kwargs):
+    print("ConcatFromSequence")
     # get the sequence and convert to a tensor
     tensor_dict = kwargs["tensor_dict"]
     input_sequence = tensor_dict[node.inputs[0]]
