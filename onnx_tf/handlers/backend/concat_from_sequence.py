@@ -21,7 +21,7 @@ class ConcatFromSequence(BackendHandler):
 
     axis = node.attrs.get("axis")
     new_axis = node.attrs.get("new_axis", 0)
-
+    axis = 3
     if new_axis == 1:
       # Currently this case, np.stack like behavior, is not supported.
       # The commmented code below would work if tf.unstack supports
