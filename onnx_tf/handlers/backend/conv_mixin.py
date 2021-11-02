@@ -61,7 +61,11 @@ class ConvMixin(BroadcastMixin):
     strides = node.attrs.get("strides", [1] * spatial_size)
 
     pads = node.attrs.get("pads", [0, 0] * spatial_size)
-
+    for p in pads:
+      if p>0:
+        node.attrs["auto_pad"] = "SAME_UPPER"
+        print("Set autopad for: ",pads)
+        break
     # Check auto_pad nonexistent or NOTSET first
     if "auto_pad" not in node.attrs or node.attrs["auto_pad"] == "NOTSET":
       if not transpose:
